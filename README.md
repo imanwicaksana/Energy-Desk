@@ -1,58 +1,46 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Energy Desk
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Energy Desk is an Indonesian-language dashboard for PLN electricity tariffs and subsidized fuel prices. It fetches live data through Laravel's server-side proxy, displays a sortable and searchable dataset with charts, and provides local spreadsheet, PDF, and analysis-note tools.
 
-## About Laravel
+## Run locally
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+1. Install PHP/Composer dependencies with `composer install`.
+2. Copy `.env.example` to `.env` if needed, set `DB_DATABASE=db_energy`, then run `php artisan key:generate`.
+3. Create an empty `db_energy` database in your configured MySQL server, then run `php artisan migrate`.
+4. Configure the API key as described below.
+5. Install frontend dependencies with `npm install`.
+6. Start Laravel with `php artisan serve` and Vite with `npm run dev`.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Configure the API key
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. Sign in to your [API Indonesia dashboard](https://dashboard.apiindonesia.id/register) and create an API key for the energy API.
+2. Open the `.env` file in the project root and set `API_INDONESIA_API_KEY=your_api_key`, replacing the example value with your key.
+3. Save `.env`, then run `php artisan config:clear` so Laravel reloads the setting.
+4. Start or refresh the app. The energy dashboard requests data through Laravel; the key is not exposed to the browser.
 
-## Learning Laravel
+Do not paste the key into chat, commit `.env`, or share it publicly. If the key is exposed, revoke it in the API Indonesia dashboard and create a replacement.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Accounts and admin guides
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Register through the site to create a regular user account. Users can edit their profile and manage their private notes.
+- To make an existing account an administrator, run `php artisan users:make-admin admin@example.com` and replace the email with that account's address.
+- Administrators can create and publish energy guides. Only published guides appear publicly.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Energy data API
 
-## Agentic Development
+The API key is used by Laravel and is not sent to the browser. The app proxies:
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+- `GET https://use.apiindonesia.id/api/v1/energi/tarif-listrik`
+- `GET https://use.apiindonesia.id/api/v1/energi/bbm`
 
-```bash
-composer require laravel/boost --dev
+The matching local routes are `/api/energi/tarif-listrik` and `/api/energi/bbm`. If Laravel configuration is cached, run `php artisan config:clear` after changing the API key. See the [API Indonesia energy documentation](https://docs.apiindonesia.id/#energi) for authentication, source attribution, and data details.
 
-php artisan boost:install
-```
+## Working with files
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+- Export the visible, filtered energy data as an Excel `.xlsx` workbook.
+- Download the Excel template for the selected dataset, fill in its `Data` sheet, and import the `.xlsx` file. The required columns are included in the template.
+- Exact duplicate rows in an imported workbook are removed automatically. Invalid rows are skipped, and imported data stays in browser memory; files are not uploaded.
+- View local PDF files in the browser, or use the PDF report button to print/save the current dataset as a PDF.
+- Analysis notes are stored in the browser's local storage.
 
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Run `npm run build` to generate production assets in `public/build`.
